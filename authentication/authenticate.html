@@ -1,0 +1,41 @@
+<script>
+  (async () => {
+    if (!window.ethereum) {
+      document.write("MetaMask must be installed.");
+      return;
+    }
+
+    let address;
+    try {
+      const addresses = await window.ethereum.request({
+        method: "eth_requestAccounts",
+      });
+      address = addresses[0];
+    } catch (e) {
+      document.write("MetaMask rejected.");
+      return;
+    }
+
+    let ts = Date.now().toString();
+    let randomness = (Math.random() * Math.random())
+      .toString()
+      .replace(".", "");
+
+    let signature = "";
+    try {
+      signature = await window.ethereum.request({
+        method: "personal_sign",
+        params: [
+          address,
+          `I hereby declare that I am owner of this wallet. I hereby declare to use this signature as a one-time login code to Nemesis bot, that I am going to use instance activated with this code and to not share it with any third party. I requested this authorization at ${ts} UNIX timestamp with randomness: ${randomness}.`,
+        ],
+      });
+    } catch (e) {
+      document.write("Authentication signature failed.");
+      return;
+    }
+
+    document.location = `nemesis://${signature}|${ts}|${randomness}`;
+    document.write("You can close this page now.");
+  })();
+</script>
