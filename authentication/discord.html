@@ -1,0 +1,42 @@
+<script>
+  (async () => {
+    if (!window.ethereum) {
+      document.write("MetaMask must be installed.");
+      return;
+    }
+
+    let address;
+    try {
+      const addresses = await window.ethereum.request({
+        method: "eth_requestAccounts",
+      });
+      address = addresses[0];
+    } catch (e) {
+      document.write("MetaMask rejected.");
+      return;
+    }
+
+    let ts = Date.now().toString();
+    let randomness = (Math.random() * Math.random())
+      .toString()
+      .replace(".", "");
+
+    let nonce = ts + randomness;
+
+    let signature = "";
+    try {
+      signature = await window.ethereum.request({
+        method: "personal_sign",
+        params: [
+          address,
+          `I hereby declare that I am owner of this wallet. I hereby declare to use this signature as a one-time invite code to Nemesis bot Discord, that I am going to use invite created with this code and to not share it with any third party. #${nonce}`,
+        ],
+      });
+    } catch (e) {
+      document.write("Authentication signature failed.");
+      return;
+    }
+
+    document.location.pathname = `/discord/${signature}/${nonce}`;
+  })();
+</script>
